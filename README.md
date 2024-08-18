@@ -18,7 +18,7 @@ rails server
 ```
 the backend should be accessible via: http://localhost:3001
 
-after making any changes to the backend, run:
+after making any working changes to the backend, run:
 ```bash
 fly deploy
 ```
