@@ -8,7 +8,7 @@ import prisma from '@/lib/prisma';
 // Create a new complaint
 export async function createComplaint(complaint: string): Promise<any> {
     const { userId } = auth();
-    console.log(typeof userId);
+    // console.log(typeof userId);
     if (!userId) throw new Error('Please sign in to submit complaint',);
 
     const tag="tag" // generate tag

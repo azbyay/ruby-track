@@ -23,7 +23,7 @@ class PineconeService
 
     response = HTTP.headers(@headers).post("#{PINECONE_BASE_URL}/query", json: payload)
 
-    Rails.logger.debug("#{response}")
+    # Rails.logger.debug("#{response}")
 
 
     if response.status.success?
