@@ -11,6 +11,8 @@ export async function createComplaint(formData: FormData): Promise<NextResponse>
     const { userId } = auth();
     if (!userId) return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
 
+    console.log('userId', userId);
+
     const {complaint} = formData
     console.log('complaint', complaint);
 
@@ -23,7 +25,7 @@ export async function createComplaint(formData: FormData): Promise<NextResponse>
     try {
         const complaintObj = await prisma.complaint.create({
             data: {
-                userId: parseInt(userId),
+                userId: userId,
                 content: complaint,
                 tag,
                 summary
@@ -43,7 +45,7 @@ export async function getUserComplaints(): Promise<NextResponse> {
 
     try {
         const complaints = await prisma.complaint.findMany({
-            where: { userId: parseInt(userId) },
+            where: { userId: userId },
             select: {
                 id: true,
                 content: true,
@@ -73,15 +75,15 @@ export async function deleteComplaint(formData: {complaintId: number}): Promise<
 
     try {
         const complaint = await prisma.complaint.findUnique({
-            where: { id: parseInt(complaintId) },
-        });
+            where: { id: complaintId },
+        }) 
 
-        if (!complaint || complaint.userId !== parseInt(userId)) {
+        if (!complaint || complaint.userId !== userId) {
             return NextResponse.json({ error: 'Complaint not found or access denied' }, { status: 404 });
         }
 
         await prisma.complaint.delete({
-            where: { id: parseInt(complaintId) },
+            where: { id: complaintId },
         });
 
         return NextResponse.json({ success: true }, { status: 200 });
@@ -103,10 +105,10 @@ export async function getComplaint(formData: {complaintId: number}): Promise<Nex
 
     try {
         const complaint = await prisma.complaint.findUnique({
-            where: { id: parseInt(complaintId) },
+            where: { id: complaintId },
         });
 
-        if (!complaint || complaint.userId !== parseInt(userId)) {
+        if (!complaint || complaint.userId !== userId) {
             return NextResponse.json({ error: 'Complaint not found or access denied' }, { status: 404 });
         }
 

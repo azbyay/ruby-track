@@ -16,8 +16,6 @@ const Header = () => {
   const path = usePathname();
   const { isSignedIn } = useUser();
 
-  console.log('navLinks', navLinks);
-
   return (
     <header className="navbar w-full px-16">
       <div className="navbar-start ">
