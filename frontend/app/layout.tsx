@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Ruby Track",
-  description: "Complaints management system",
+  description: "by FAMSS & Co.",
 };
 
 export default function RootLayout({

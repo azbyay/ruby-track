@@ -17,3 +17,9 @@ rails credentials:edit
 rails server
 ```
 the backend should be accessible via: http://localhost:3001
+
+after making any working changes to the backend, run:
+```bash
+fly deploy
+```
+the real ones know where the backend api calls are made, so i won't say
