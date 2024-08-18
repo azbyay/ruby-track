@@ -19,10 +19,11 @@ export default function Page() {
     const { mutate: handleCreateComplaint, isPending, isError, error } = useMutation({
         mutationFn: async () => {
             if (!complaintRef || !complaintRef.current || !complaintRef.current.value) return;
-            const formData = new FormData();
-            formData.append('complaint', complaintRef.current.value);
-            console.log('complaintRef.current.value', complaintRef.current.value);
-            await createComplaint(formData);
+            // Extract the complaint text directly from the ref's current value
+            const complaintText = complaintRef.current.value;
+            console.log('complaintRef.current.value', complaintText);
+            // Pass the complaint text directly to createComplaint
+            await createComplaint(complaintText);
             complaintRef.current.value = "";
         },
         onError: (error) => console.error(error),

@@ -8,6 +8,7 @@ import prisma from '@/lib/prisma';
 // Create a new complaint
 export async function createComplaint(complaint: string): Promise<any> {
     const { userId } = auth();
+    console.log(typeof userId);
     if (!userId) return { error: 'User not authenticated' };
 
  
@@ -22,7 +23,7 @@ export async function createComplaint(complaint: string): Promise<any> {
     try {
         const complaintObj = await prisma.complaint.create({
             data: {
-                userId: userId,
+                userId: String(userId),
                 content: complaint,
                 tag,
                 summary
