@@ -19,7 +19,7 @@ export async function createComplaint(complaint: string): Promise<any> {
     try {
         const complaintObj = await prisma.complaint.create({
             data: {
-                userId: userId,
+                userId: String(userId),
                 content: complaint,
                 tag,
                 summary
