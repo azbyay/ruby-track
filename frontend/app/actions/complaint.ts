@@ -6,33 +6,32 @@ import prisma from '@/lib/prisma';
 
 
 // Create a new complaint
-// Adjust the parameter type to FormData
-export async function createComplaint(formData: FormData): Promise<any> {
+export async function createComplaint(complaint: string): Promise<any> {
     const { userId } = auth();
     if (!userId) return { error: 'User not authenticated' };
 
-    // Extract the complaint string from FormData
-    const complaint = formData.get('complaint');
-    if (typeof complaint !== 'string' || !complaint) return { error: 'Content is required' };
-
+ 
     console.log('complaint', complaint);
 
-    const tag = "tag";
-    const summary = "summary";
+    const tag="tag"
+    const summary="summary"
+
+
+    if (!complaint) return { error: 'Content is required' };
 
     try {
         const complaintObj = await prisma.complaint.create({
             data: {
-                userId: userId, // userId must be a string
+                userId: userId,
                 content: complaint,
                 tag,
                 summary
             },
-        });        
-        return { id: complaintObj.id };
+        });
+        return { id:complaintObj.id };
     } catch (error) {
         console.error(error);
-        return { error: 'Failed to create complaint' };
+        return { error: 'Failed to create complaint' }
     }
 }
 
@@ -61,20 +60,20 @@ export async function getUserComplaints(): Promise<NextResponse> {
 }
 
 // Delete a complaint
-export async function deleteComplaint(formData: { complaintId: number }): Promise<NextResponse> {
+export async function deleteComplaint(formData: {complaintId: number}): Promise<NextResponse> {
     const { userId } = auth();
     if (!userId) return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
 
-    const { complaintId } = formData;
+    const { complaintId } = formData
+
     if (!complaintId || typeof complaintId !== 'string') {
         return NextResponse.json({ error: 'Invalid complaint ID' }, { status: 400 });
     }
 
-    // Prisma expects an integer for the complaint ID
     try {
         const complaint = await prisma.complaint.findUnique({
             where: { id: complaintId },
-        });
+        }) 
 
         if (!complaint || complaint.userId !== userId) {
             return NextResponse.json({ error: 'Complaint not found or access denied' }, { status: 404 });
