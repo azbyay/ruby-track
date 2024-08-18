@@ -20,7 +20,7 @@ export default function Home() {
               Revolutionize Your Consumer Complaint Analysis
             </h1>
             <p className="text-muted-foreground md:text-xl">
-              Ruby's AI-Powered Consumer Complaint Analysis tool unlocks unprecedented insights, empowering you to
+              Ruby&apos;s AI-Powered Consumer Complaint Analysis tool unlocks unprecedented insights, empowering you to
               streamline your operations and deliver exceptional customer experiences.
             </p>
 
