@@ -6,18 +6,19 @@ import prisma from '@/lib/prisma';
 
 
 // Create a new complaint
-export async function createComplaint(complaint: string): Promise<any> {
+// Adjust the parameter type to FormData
+export async function createComplaint(formData: FormData): Promise<any> {
     const { userId } = auth();
     if (!userId) return { error: 'User not authenticated' };
 
- 
+    // Extract the complaint string from FormData
+    const complaint = formData.get('complaint');
+    if (typeof complaint !== 'string' || !complaint) return { error: 'Content is required' };
+
     console.log('complaint', complaint);
 
-    const tag="tag"
-    const summary="summary"
-
-
-    if (!complaint) return { error: 'Content is required' };
+    const tag = "tag";
+    const summary = "summary";
 
     try {
         const complaintObj = await prisma.complaint.create({
@@ -28,10 +29,10 @@ export async function createComplaint(complaint: string): Promise<any> {
                 summary
             },
         });
-        return { id:complaintObj.id };
+        return { id: complaintObj.id };
     } catch (error) {
         console.error(error);
-        return { error: 'Failed to create complaint' }
+        return { error: 'Failed to create complaint' };
     }
 }
 
