@@ -9,37 +9,33 @@ import prisma from '@/lib/prisma';
 export async function createComplaint(complaint: string): Promise<any> {
     const { userId } = auth();
     console.log(typeof userId);
-    if (!userId) return { error: 'User not authenticated' };
+    if (!userId) throw new Error('Please sign in to submit complaint',);
 
- 
-    console.log('complaint', complaint);
+    const tag="tag" // generate tag
+    const summary="summary" // generate summary
 
-    const tag="tag"
-    const summary="summary"
-
-
-    if (!complaint) return { error: 'Content is required' };
+    if (!complaint) throw new Error('Complaint cannot be empty');
 
     try {
         const complaintObj = await prisma.complaint.create({
             data: {
-                userId: String(userId),
+                userId: userId,
                 content: complaint,
                 tag,
                 summary
             },
         });
-        return { id:complaintObj.id };
+        return { id: complaintObj.id };
     } catch (error) {
         console.error(error);
-        return { error: 'Failed to create complaint' }
+        throw new Error('Failed to create complaint, please try again later');
     }
 }
 
 // Get all complaints for a user
-export async function getUserComplaints(): Promise<NextResponse> {
+export async function getUserComplaints(): Promise<any> {
     const { userId } = auth();
-    if (!userId) return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    if (!userId) throw new Error('User not authenticated');
 
     try {
         const complaints = await prisma.complaint.findMany({
@@ -53,22 +49,29 @@ export async function getUserComplaints(): Promise<NextResponse> {
             },
         });
 
-        return NextResponse.json({ data: complaints }, { status: 200 });
+        // Convert Date objects to ISO strings
+        const serializedComplaints = complaints.map(complaint => ({
+            ...complaint,
+            createdAt: complaint.createdAt.toISOString(),
+        }));
+
+        console.log('serializedComplaints', serializedComplaints);
+
+        return JSON.stringify({ data: serializedComplaints });
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: 'Failed to fetch complaints' }, { status: 500 });
+        throw new Error('Failed to fetch complaints');
     }
 }
 
+
 // Delete a complaint
-export async function deleteComplaint(formData: {complaintId: number}): Promise<NextResponse> {
+export async function deleteComplaint(complaintId: number): Promise<any> {
     const { userId } = auth();
-    if (!userId) return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    if (!userId) throw new Error('User not authenticated');
 
-    const { complaintId } = formData
-
-    if (!complaintId || typeof complaintId !== 'string') {
-        return NextResponse.json({ error: 'Invalid complaint ID' }, { status: 400 });
+    if (!complaintId) {
+        throw new Error('Invalid complaint ID');
     }
 
     try {
@@ -77,43 +80,44 @@ export async function deleteComplaint(formData: {complaintId: number}): Promise<
         }) 
 
         if (!complaint || complaint.userId !== userId) {
-            return NextResponse.json({ error: 'Complaint not found or access denied' }, { status: 404 });
+            throw new Error('Complaint not found or access denied');
         }
 
         await prisma.complaint.delete({
             where: { id: complaintId },
         });
 
-        return NextResponse.json({ success: true }, { status: 200 });
+        console.log('Complaint deleted successfully');
+        return { success: true };
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: 'Failed to delete complaint' }, { status: 500 });
+        throw new Error('Failed to delete complaint');
     }
 }
 
 // Read a single complaint
-export async function getComplaint(formData: {complaintId: number}): Promise<NextResponse> {
-    const { userId } = auth();
-    if (!userId) return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+// export async function getComplaint(formData: {complaintId: number}): Promise<NextResponse> {
+//     const { userId } = auth();
+//     if (!userId) return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
 
-    const {complaintId} = formData
-    if (!complaintId || typeof complaintId !== 'string') {
-        return NextResponse.json({ error: 'Invalid complaint ID' }, { status: 400 });
-    }
+//     const {complaintId} = formData
+//     if (!complaintId || typeof complaintId !== 'string') {
+//         return NextResponse.json({ error: 'Invalid complaint ID' }, { status: 400 });
+//     }
 
-    try {
-        const complaint = await prisma.complaint.findUnique({
-            where: { id: complaintId },
-        });
+//     try {
+//         const complaint = await prisma.complaint.findUnique({
+//             where: { id: complaintId },
+//         });
 
-        if (!complaint || complaint.userId !== userId) {
-            return NextResponse.json({ error: 'Complaint not found or access denied' }, { status: 404 });
-        }
+//         if (!complaint || complaint.userId !== userId) {
+//             return NextResponse.json({ error: 'Complaint not found or access denied' }, { status: 404 });
+//         }
 
 
-        return NextResponse.json({ data: complaint }, { status: 200 });
-    } catch (error) {
-        console.error(error);
-        return NextResponse.json({ error: 'Failed to fetch complaint' }, { status: 500 });
-    }
-}
+//         return NextResponse.json({ data: complaint }, { status: 200 });
+//     } catch (error) {
+//         console.error(error);
+//         return NextResponse.json({ error: 'Failed to fetch complaint' }, { status: 500 });
+//     }
+// }

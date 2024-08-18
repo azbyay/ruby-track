@@ -1,60 +1,66 @@
-"use client";
-import { useRef, useState } from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+'use client'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { formSchema } from "@/lib/data"
+import type { FormData } from "@/lib/data"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { createComplaint } from "../actions/complaint"
+import { useRef, useState } from "react"
+import { useToast } from "@/components/ui/use-toast"
 
-function Page() {
-  const complaintRef = useRef<HTMLTextAreaElement>(null);
-  const [similarComplaints, setSimilarComplaints] = useState<any[]>([]); // Adjusted to any[] to accommodate complex objects
-  const queryClient = useQueryClient();
 
-  const {
-    mutate: handleCreateComplaint,
-    isPending,
-    isError,
-    error,
-  } = useMutation({
-    mutationFn: async () => {
-      if (!complaintRef.current?.value) return;
-      const complaintText = complaintRef.current.value;
+export default function Page() {
+    const complaintRef = useRef<HTMLTextAreaElement>(null)
+    const queryClient = useQueryClient()
+    const { toast } = useToast()
+    const [similarComplaints, setSimilarComplaints] = useState<any[]>([]); // Adjusted to any[] to accommodate complex objects
 
-      const response = await fetch(
-        "https://backend-white-glitter-696.fly.dev/api/v1/questions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ question: complaintText }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch similar complaints");
-      }
-
-      const { result } = await response.json(); // Destructure to directly access the result property
-      setSimilarComplaints(result.matches); // Assuming the API returns an object with a result property containing matches
-      complaintRef.current.value = "";
-    },
-    onError: (error) => console.error(error),
-    onSuccess: () => {
-      alert("Complaint submitted successfully");
-      // Correctly invalidate the query
-      queryClient.invalidateQueries({
-        queryKey: ["similarComplaints"],
-      });
-    },
-  });
+    const { mutate: handleCreateComplaint, isPending, isError, error } = useMutation({
+        mutationFn: async () => {
+            if (!complaintRef || !complaintRef.current || !complaintRef.current.value)
+                throw new Error('Complaint cannot be empty');
+            // Extract the complaint text directly from the ref's current value
+            const complaintText = complaintRef.current.value;
+            console.log('complaintRef.current.value', complaintText);
+          
+            const response = await fetch(
+              "https://backend-white-glitter-696.fly.dev/api/v1/questions",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ question: complaintText }),
+              }
+            );
+          
+            if (!response.ok) {
+              throw new Error("Failed to fetch similar complaints");
+            }
+          
+            // Pass the complaint text directly to createComplaint
+            await createComplaint(complaintText);
+          
+            const { result } = await response.json(); // Destructure to directly access the result property
+            setSimilarComplaints(result.matches);
+          
+            complaintRef.current.value = "";
+        },
+        onError: (error) => console.error(error),
+        onSuccess: () => {
+            alert("Complaint submitted successfully")
+            queryClient.invalidateQueries({ queryKey: ['complaints'] });
+            toast({
+                title: "Field Updated Successfully",
+                variant: 'default'
+            })
+        },
+    });
 
   return (
     <section className="w-full max-w-3xl mx-auto h-full pt-36 flex flex-col gap-4 relative pb-8">
