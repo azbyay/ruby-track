@@ -11,7 +11,9 @@ the backend should be accessible via: http://localhost:3000
 for the backend:
 ```bash
 cd backend
-docker build -t my_rails_app .
-docker run -p 3001:3001 my_rails_app
+bundle install --gemfile
+$env:EDITOR = "code --wait"
+rails credentials:edit
+rails server
 ```
 the backend should be accessible via: http://localhost:3001
