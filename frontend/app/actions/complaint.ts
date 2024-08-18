@@ -1,26 +1,23 @@
 "use server"
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import type { FormData } from '@/lib/data';
 import prisma from '@/lib/prisma';
 
 
 // Create a new complaint
-export async function createComplaint(formData: FormData): Promise<NextResponse> {
+export async function createComplaint(complaint: string): Promise<any> {
     const { userId } = auth();
-    if (!userId) return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    if (!userId) return { error: 'User not authenticated' };
 
-    console.log('userId', userId);
-
-    const {complaint} = formData
+ 
     console.log('complaint', complaint);
 
     const tag="tag"
     const summary="summary"
 
 
-    if (!complaint) return NextResponse.json({ error: 'Content is required' }, { status: 400 });
+    if (!complaint) return { error: 'Content is required' };
 
     try {
         const complaintObj = await prisma.complaint.create({
@@ -31,10 +28,10 @@ export async function createComplaint(formData: FormData): Promise<NextResponse>
                 summary
             },
         });
-        return NextResponse.json({ id: complaintObj.id }, { status: 201 });
+        return { id:complaintObj.id };
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: 'Failed to create complaint' }, { status: 500 });
+        return { error: 'Failed to create complaint' }
     }
 }
 
