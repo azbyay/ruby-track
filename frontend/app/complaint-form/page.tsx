@@ -8,11 +8,9 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-type FormValues = {
-    complaint: string
-}
+type FormValues = z.infer<typeof formSchema>
 
-export const formSchema = z.object({
+const formSchema = z.object({
     complaint: z.string().min(10).max(500),
 })
 
@@ -21,7 +19,7 @@ export default function Page() {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm({
+    } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             complaint: "",
