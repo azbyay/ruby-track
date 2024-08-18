@@ -41,3 +41,11 @@ group :development, :test do
 end
 
 
+
+gem "ruby-openai", "~> 7.1"
+
+gem "turbo-rails", "~> 2.0"
+
+gem "rack-cors", "~> 2.0"
+
+gem "dotenv-rails", "~> 3.1"

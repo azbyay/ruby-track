@@ -24,9 +24,19 @@ module MyBackend
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
-    # Only loads a smaller set of middleware suitable for API only apps.
+    # Only loads a smaller set of middleware suitable for API-only apps.
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+    config.autoload_paths += %W({config.root}/app/controllers)
+    # Middleware configuration for Rack::Cors to handle CORS settings.
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        origins '*' # Change this to the specific domains you want to allow
+        resource '*', 
+                 headers: :any, 
+                 methods: [:get, :post, :put, :patch, :delete, :options, :head]
+      end
+    end
   end
 end

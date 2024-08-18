@@ -1,6 +1,8 @@
+# config/routes.rb
 Rails.application.routes.draw do
-  get "home/index"
-  root to: 'home#index'
-
-  get '/favicon.ico', to: ->(env) { [204, {}, []] }
+  namespace :api do
+    namespace :v1 do
+      resources :questions, only: [:index, :create]
+    end
+  end
 end
