@@ -8,17 +8,21 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { formSchema } from "@/lib/data"
 import type { FormData } from "@/lib/data"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createComplaint } from "../actions/complaint"
 import { useRef } from "react"
+import { useToast } from "@/components/ui/use-toast"
 
 
 export default function Page() {
     const complaintRef = useRef<HTMLTextAreaElement>(null)
+    const queryClient = useQueryClient()
+    const { toast } = useToast()
 
     const { mutate: handleCreateComplaint, isPending, isError, error } = useMutation({
         mutationFn: async () => {
-            if (!complaintRef || !complaintRef.current || !complaintRef.current.value) return;
+            if (!complaintRef || !complaintRef.current || !complaintRef.current.value)
+                throw new Error('Complaint cannot be empty');
             // Extract the complaint text directly from the ref's current value
             const complaintText = complaintRef.current.value;
             console.log('complaintRef.current.value', complaintText);
@@ -29,6 +33,11 @@ export default function Page() {
         onError: (error) => console.error(error),
         onSuccess: () => {
             alert("Complaint submitted successfully")
+            queryClient.invalidateQueries({ queryKey: ['complaints'] });
+            toast({
+                title: "Field Updated Successfully",
+                variant: 'default'
+            })
         }
     })
 
